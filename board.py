@@ -7,8 +7,10 @@ from ns import colours as c
 from ns import api as api
 from ns.stations import codes as station_codes
 
+import constants
 
-selected_station = 'zv'
+
+selected_station = constants.selected_station
 
 pi_width = 480
 pi_height = 320
