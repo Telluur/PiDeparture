@@ -111,7 +111,7 @@ track_style = train_style | {
 def update_trains():
     # Suspend API calls between 0 and 5
     h = dt.now().hour
-    if h >= 0 and h < 5 or h == 23:
+    if h >= 0 and h < 5:
         trains = [api.night_entry]
     else:
         trains = api.fetch_trains(selected_station)
