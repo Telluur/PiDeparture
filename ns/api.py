@@ -56,7 +56,7 @@ def fetch_trains(station='esk'):
                 'cancelled': cancelled
             }
 
-            print(entry)
+            #print(entry)
             parsed_trains.append(entry)
         print('[{}] API fetch complete'.format(dt.now().strftime("%H:%M:%S")))
         return parsed_trains
