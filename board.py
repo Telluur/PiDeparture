@@ -18,6 +18,7 @@ row_height = pi_height / 8
 
 
 root = tk.Tk()
+root.configure(background='black')
 root.minsize(width=pi_width, height=pi_height)
 root.maxsize(width=pi_width, height=pi_height)
 # Make the window borderless
@@ -82,6 +83,16 @@ delayed_style = train_style | {
 track_style = train_style | {
     'anchor': tk.CENTER}
 
+def create_dark_frame():
+    # Define frame for trains
+    tf = tk.Frame(root, width=pi_width, height=pi_height -
+                  row_height, background='black')
+    tf.grid(row=1, column=0)
+
+    # Force dimensions
+    tf.grid_propagate(False)
+    return tf
+
 def create_train_frame():
     # Define frame for trains
     tf = tk.Frame(root, width=pi_width, height=pi_height -
@@ -105,11 +116,12 @@ train_frame = create_train_frame()
 
 
 def update_trains():
+    global train_frame
     # Suspend API calls between 0 and 5
     h = dt.now().hour
     if h >= 0 and h < 5:
-        new_trains = [api.night_entry]
-        station_label.config(text="-")
+        station_label.config(text="Offline till 5:00")
+        train_frame.destroy()
     else:
         global station_index_selector
         selected_station = constants.ns_stations[station_index_selector]
@@ -117,56 +129,55 @@ def update_trains():
         trains = api.fetch_trains(selected_station)
         station_index_selector = (station_index_selector + 1) % len(constants.ns_stations)
 
-    # Fill the board with empty entries if api returned < 7
-    for i in range(7 - len(trains)):
-        trains.append(api.empty_entry)
+        # Fill the board with empty entries if api returned < 7
+        for i in range(7 - len(trains)):
+            trains.append(api.empty_entry)
 
 
 
-    # Destroy the old frame, and rebuild frame
-    global train_frame
-    train_frame.destroy()
-    del(train_frame)
-    train_frame = create_train_frame()
+        # Destroy the old frame, and rebuild frame
+        train_frame.destroy()
+        del(train_frame)
+        train_frame = create_train_frame()
 
-    # Fill the frame with train data
-    for n in range(number_of_trains):
-        i = n*2
-        train_frame.grid_rowconfigure(i, weight=1)  # Train
+        # Fill the frame with train data
+        for n in range(number_of_trains):
+            i = n*2
+            train_frame.grid_rowconfigure(i, weight=1)  # Train
 
-        t = trains[n]
+            t = trains[n]
 
-        tk.Label(train_frame, text=t['time'], **train_style)\
-            .grid(row=i, column=0, sticky=tk.NSEW)
+            tk.Label(train_frame, text=t['time'], **train_style)\
+                .grid(row=i, column=0, sticky=tk.NSEW)
 
-        delay = t['delay']
-        if (delay > 0):
-            tk.Label(train_frame, text='+{}'.format(delay), **delayed_style)\
-                .grid(row=i, column=1, sticky=tk.NSEW)
+            delay = t['delay']
+            if (delay > 0):
+                tk.Label(train_frame, text='+{}'.format(delay), **delayed_style)\
+                    .grid(row=i, column=1, sticky=tk.NSEW)
 
-        track_frame = tk.LabelFrame(
-            train_frame, text='spoor', highlightcolor=c.blue, highlightbackground=c.blue, background=c.white)
-        track_frame.grid(row=i, column=2, sticky=tk.NSEW)
-        tk.Label(track_frame, text=t['track'], **track_style).pack()
+            track_frame = tk.LabelFrame(
+                train_frame, text='spoor', highlightcolor=c.blue, highlightbackground=c.blue, background=c.white)
+            track_frame.grid(row=i, column=2, sticky=tk.NSEW)
+            tk.Label(track_frame, text=t['track'], **track_style).pack()
 
 
-        service_text = t['service']
-        if t['cancelled']:
-            service_text = util.strike(service_text)
-        tk.Label(train_frame, text=service_text, **train_style)\
-            .grid(row=i, column=3, sticky=tk.NSEW)
+            service_text = t['service']
+            if t['cancelled']:
+                service_text = util.strike(service_text)
+            tk.Label(train_frame, text=service_text, **train_style)\
+                .grid(row=i, column=3, sticky=tk.NSEW)
 
-        cancelled_frame = tk.LabelFrame(
-            train_frame, text='status', highlightcolor=c.blue, highlightbackground=c.blue, background=c.white)
-        cancelled_frame.grid(row=i, column=4, sticky=tk.NSEW)
-        if t['cancelled']:
-            tk.Label(cancelled_frame, text='Cancelled', **delayed_style).pack()
-        else:
-            tk.Label(cancelled_frame, text=t['departure_status'], **track_style).pack()
+            cancelled_frame = tk.LabelFrame(
+                train_frame, text='status', highlightcolor=c.blue, highlightbackground=c.blue, background=c.white)
+            cancelled_frame.grid(row=i, column=4, sticky=tk.NSEW)
+            if t['cancelled']:
+                tk.Label(cancelled_frame, text='Cancelled', **delayed_style).pack()
+            else:
+                tk.Label(cancelled_frame, text=t['departure_status'], **track_style).pack()
 
-        train_frame.grid_rowconfigure(i+1, weight=0)  # Seperator
-        tk.Frame(train_frame, background=c.blue).grid(
-            row=i+1, columnspan=5, sticky=tk.EW)
+            train_frame.grid_rowconfigure(i+1, weight=0)  # Seperator
+            tk.Frame(train_frame, background=c.blue).grid(
+                row=i+1, columnspan=5, sticky=tk.EW)
 
     # Repeat API call after 30 seconds
     root.after(1000*30, update_trains)

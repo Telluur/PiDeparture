@@ -74,5 +74,3 @@ empty_entry = {
     'departure_status': '-',
     'cancelled': False,
 }
-
-night_entry = empty_entry | {'service': 'Suspended NS API calls till 5:00...'}
