@@ -2,3 +2,5 @@ constants.py
 __pycache__/
 ns/__pycache__/
 assets/Frutiger.ttf
+openbox.log
+departure-venv/
