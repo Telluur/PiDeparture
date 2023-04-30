@@ -21,7 +21,7 @@ root = tk.Tk()
 root.minsize(width=pi_width, height=pi_height)
 root.maxsize(width=pi_width, height=pi_height)
 # Make the window borderless
-#root.overrideredirect(True)
+root.overrideredirect(True)
 
 # Header
 
