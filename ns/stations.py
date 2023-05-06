@@ -1,3 +1,5 @@
+def full_station_name(station_code:str) -> str:
+    return codes[station_code.lower()]
 
 codes = {'atn': 'AaltenPoort',
          'ac': 'Abcoude',
