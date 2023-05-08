@@ -120,7 +120,7 @@ def create_train_frame():
 train_frame = create_train_frame()
 
 live_departures = deque(map(lambda x: api.Departures(
-    station_code=x, limit=number_of_trains), constants.ns_stations))
+    station_code=x, limit=number_of_trains, destination_filter=['ES']), constants.ns_stations))
 
 
 def update_board():

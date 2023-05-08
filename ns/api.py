@@ -8,6 +8,9 @@ import pytz
 import requests
 import constants
 
+from ns import stations
+
+
 UTC_TZ = pytz.utc
 LOCAL_TZ = pytz.timezone('Europe/Amsterdam')
 STOCK_TRAIN = {
@@ -29,9 +32,10 @@ STOCK_TRAIN = {
 class Departures:
     trains = []
 
-    def __init__(self, station_code: str, limit: int = 10) -> None:
+    def __init__(self, station_code: str, limit: int = 10, destination_filter: list[str] = []) -> None:
         self.station_code = station_code.upper()
         self.limit = limit
+        self.destination_filter = [stations.full_station_name(x).lower() for x in destination_filter]
         self.update_thread = threading.Thread(target=self._schedule)
         self.update_thread.start()
 
@@ -102,6 +106,10 @@ class Departures:
 
                 # Get actual destination
                 destination = t['destination_actual']
+
+                # Skip this train if it's in the destination filter
+                if destination.lower() in self.destination_filter:
+                    continue
 
                 # Construct service label
                 new_train['service'] = f'{service_prefix} {destination}'
